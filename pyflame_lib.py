@@ -19,7 +19,7 @@
 
 """
 PyFlame Library
-Version: 5.1.0
+Version: 5.0.0
 Written By: Michael Vaglienty
 Creation Date: 10.31.20
 Update Date: 09.03.25
