@@ -1,14 +1,36 @@
+# PyFlame Library
+# Copyright (c) 2025 Michael Vaglienty
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# License:       GNU General Public License v3.0 (GPL-3.0)
+#                https://www.gnu.org/licenses/gpl-3.0.en.html
+
 """
 PyFlame Library
-Version: 5.0.0
+Version: 5.1.0
 Written By: Michael Vaglienty
 Creation Date: 10.31.20
 Update Date: 09.03.25
-License: MIT - see LICENSE file for details
+
+License: GNU General Public License v3.0 (GPL-3.0) - see LICENSE file for details
 
 Description:
     This library provides custom PyQt widgets styled to resemble Autodesk Flame,
     along with other useful utility functions.
+
+    https://github.com/logik-portal/pyflame
 
 Usage:
     - Place this file inside a folder named "lib" located in the same directory
@@ -62,7 +84,7 @@ import xml.etree.ElementTree as ET
 from enum import Enum
 from functools import partial
 from subprocess import PIPE, Popen
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple, Sequence
 
 import flame
 
@@ -3228,19 +3250,24 @@ class _PyFlame:
         clip_name = str(clip.name)[1:-1]
         print('Clip Name:', clip_name)
 
-        # Split clip name into list by numbers in clip name
-        shot_name_split = re.split(r'(\d+)', clip_name)
-        shot_name_split = [s for s in shot_name_split if s != '']
-        #print('shot_name_split:', shot_name_split)
+        # Check if numbders are in clip name and extract shot name from clip name
+        if any(char.isdigit() for char in clip_name):
 
-        # If second part of split name contains only alphanumeric chars,
-        # combine first two parts (e.g. "Shot" + "01" -> "Shot01")
-        # Otherwise combine first three parts to handle separators
-        # (e.g. "Shot" + "_" + "01" -> "Shot_01")
-        if shot_name_split[1].isalnum():
-            shot_name = shot_name_split[0] + shot_name_split[1]
+            # Split clip name into list by numbers in clip name
+            shot_name_split = re.split(r'(\d+)', clip_name)
+            shot_name_split = [s for s in shot_name_split if s != '']
+            #print('shot_name_split:', shot_name_split)
+
+            # If second part of split name contains only alphanumeric chars,
+            # combine first two parts (e.g. "Shot" + "01" -> "Shot01")
+            # Otherwise combine first three parts to handle separators
+            # (e.g. "Shot" + "_" + "01" -> "Shot_01")
+            if shot_name_split[1].isalnum():
+                shot_name = shot_name_split[0] + shot_name_split[1]
+            else:
+                shot_name = shot_name_split[0] + shot_name_split[1] + shot_name_split[2]
         else:
-            shot_name = shot_name_split[0] + shot_name_split[1] + shot_name_split[2]
+            shot_name = clip_name
 
         # Tag clip with shot name, pass if Flame 2025 or older
         try:
@@ -4234,9 +4261,6 @@ class PyFlameButton(QtWidgets.QPushButton):
         # Connect button click
         self.connect_callback(connect)
 
-        # Set Button Stylesheet
-        self._set_stylesheet(color)
-
     #---------------------------
     # [Properties]
     #---------------------------
@@ -4344,6 +4368,9 @@ class PyFlameButton(QtWidgets.QPushButton):
 
         # Set property
         self._color = value
+
+        # Set button color
+        self._set_stylesheet(value)
 
     @property
     def enabled(self) -> bool:
@@ -16144,6 +16171,12 @@ class PyFlameTextBrowser(QtWidgets.QTextBrowser):
     def leaveEvent(self, event):
         self.tooltip_popup.leave_event()
 
+
+
+
+
+
+
 class PyFlameTreeWidget(QtWidgets.QTreeWidget):
     """
     PyFlameTreeWidget
@@ -17929,6 +17962,42 @@ class PyFlameTreeWidget(QtWidgets.QTreeWidget):
 
         pyflame.print(f'Added item: {item_name}', text_color=TextColor.GREEN)
 
+    def add_item_with_columns(self, item: list[str]) -> None:
+        """
+        Add Item With Columns
+        =====================
+
+        Add a new item to the PyFlameTreeWidget with column data.
+
+        Args
+        ----
+            `item` (list):
+                New item to add to tree. The first item in the list is the name of the item.
+                The following items in the list is the data to be added under the item columns.
+
+        Raises
+        ------
+            TypeError:
+                If `item_name` is not a string.
+
+        Example
+        --------
+            Add a new item to the PyFlameTreeWidget:
+            ```
+            tree_widget.add_item(item_name='New Item')
+            ```
+        """
+
+        # Validate the argument type
+        if not isinstance(item, list):
+            pyflame.raise_type_error('PyFlameTreeWidget.add_item_with_columns', 'item', 'list', item)
+
+        # Add item with columns to tree
+        QtWidgets.QTreeWidgetItem(self, item)
+
+        # Trigger the callback function if it is set
+        self._trigger_callback()
+
     def delete_item(self) -> None:
         """
         Delete Item
@@ -18227,6 +18296,11 @@ class PyFlameTreeWidget(QtWidgets.QTreeWidget):
 
     def leaveEvent(self, event):
         self.tooltip_popup.leave_event()
+
+
+
+
+
 
 #-------------------------------------
 # [PyFlame Misc Widgets]
