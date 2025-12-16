@@ -14,7 +14,7 @@ match Flame’s UI and utility functions that streamline script development.
 ## Compatibility
 
 **Python:** 3.11<br>
-**Qt binding:** PySide6 (Pyside2 no longer supported)<br>
+**Qt Version:** PySide6 (Pyside2 no longer supported)<br>
 **Autodesk Flame:** 2025+<br>
 
 ## Usage
