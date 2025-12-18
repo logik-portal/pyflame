@@ -9,6 +9,7 @@ match Flame’s UI and utility functions that streamline script development.
 **Creation Date:** 10.31.20<br>
 **Update Date:** 12.16.25<br>
 **Written By:** Michael Vaglienty<br>
+
 **License:** License: GNU General Public License v3.0 (GPL-3.0) - see LICENSE file for details<br>
 
 ## Compatibility
