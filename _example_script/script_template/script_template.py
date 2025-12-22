@@ -232,7 +232,7 @@ class ScriptTemplate:
             )
         self.cancel_button = PyFlameButton(
             text='Cancel',
-            connect=self.window.close,
+            connect=close_window,
             )
 
         # ------------------------------------------------------------------------------
