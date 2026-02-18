@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 https://github.com/logik-portal/pyflame
 
+## v5.2.2 [02.18.26]
+
+- Fixed: Unable to find project errors in terminal when Flame starts up.
+
+- **Widgets**
+    - `PyFlameSlider`
+        - **Calculator**
+            - Pressing number keys now updates the value in the calculator entry field.
+            - Pressing backspace key now deletes the last character in the calculator entry field.
+
+- **PyFlameFunctions**
+    - `pyflame.move_to_shot_folder`
+        - Added `expand_dest_folder` argument to expand the destination folder after move is complete.
+    - `pyflame.copy_to_shot_folder`
+        - Added `expand_dest_folder` argument to expand the destination folder after copy is complete.
+
+## v5.2.1 [01.08.26]
+
+- Misc spelling/type-o fixes
+
 ## v5.2.0 [01.04.26]
 
 ### Updates/Fixes
@@ -129,11 +149,11 @@ This update will break most scripts using this library.
         - Has ability to display html, markdown, and plain text.
 
 - **PyFlameFunctions**
-    - pyflame.get_media_panel_shot_folder
+    - `pyflame.get_media_panel_shot_folder`
 
-    - pyflame.move_to_shot_folder
+    - `pyflame.move_to_shot_folder`
 
-    - pyflame.copy_to_shot_folder
+    - `pyflame.copy_to_shot_folder`
 
 ### Updates/Fixes
 

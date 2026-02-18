@@ -19,10 +19,10 @@
 
 """
 PyFlame Library
-Version: 5.2.0
+Version: 5.2.2
 Written By: Michael Vaglienty
 Creation Date: 10.31.20
-Update Date: 01.04.26
+Update Date: 02.18.26
 
 License: GNU General Public License v3.0 (GPL-3.0) - see LICENSE file for details
 
@@ -63,7 +63,7 @@ Notes:
 Import Example:
     from lib.pyflame_lib_<main_script_name> import *
 
-See README.md and CHANGLELOG.md for more details.
+See README.md and CHANGELOG.md for more details.
 """
 
 # ==============================================================================
@@ -108,8 +108,6 @@ SCRIPT_PATH = LIB_PATH.rsplit("/", 1)[0]
 
 SHARED_FILE_SEQUENCE_PATH = '/opt/Autodesk/shared/export/presets/file_sequence'
 SHARED_MOVIE_EXPORT_PATH = '/opt/Autodesk/shared/export/presets/movie_file'
-PROJECT_FILE_SEQUENCE_PATH = os.path.join('/opt/Autodesk/', f'{flame.projects.current_project.name}', 'export/presets/flame/file_sequence')
-PROJECT_MOVIE_EXPORT_PATH = os.path.join('/opt/Autodesk/', f'{flame.projects.current_project.name}', 'export/presets/flame/movie_file')
 
 # ==============================================================================
 # [PyFlame Enums]
@@ -413,7 +411,7 @@ class TextType(Enum):
         `MARKDOWN` (str):
             Text is read as Markdown.
 
-        `HTLM` (str):
+        `HTML` (str):
             Text is read as HTML.
     """
 
@@ -482,9 +480,9 @@ class _PyFlame:
             QtCore.QTimer.singleShot(time, loop.quit)
             loop.exec_()
 
-        milliseoncds = seconds*1000 # 1000ms = 1 second
+        milliseconds = seconds*1000 # 1000ms = 1 second
 
-        pause_loop(milliseoncds)
+        pause_loop(milliseconds)
 
     @staticmethod
     def python_package_local_install(package: str | list[str]) -> bool:
@@ -578,7 +576,7 @@ class _PyFlame:
                 PyFlameMessageWindow(
                     message=f'Python package {package} not found.',
                     message_type=MessageType.ERROR,
-                    title='PDF to JPG',
+                    title=SCRIPT_NAME,
                     parent=None,
                     )
                 return False
@@ -599,7 +597,7 @@ class _PyFlame:
                 PyFlameMessageWindow(
                     message=f'Python package {package} not installed.',
                     message_type=MessageType.ERROR,
-                    title='PDF to JPG',
+                    title=SCRIPT_NAME,
                     parent=None,
                     )
                 return False
@@ -622,7 +620,7 @@ class _PyFlame:
             # Open password window to get system password. If password is not entered, return None.
             password_window = PyFlamePasswordWindow(
                 text=f'This script requires python packages to be installed. System password is required to install them.',
-                title='PDF to JPG: System Password',
+                title=f'{SCRIPT_NAME}: System Password',
                 parent=None,
                 )
             system_password = password_window.password # Get system password from password window.
@@ -674,7 +672,7 @@ class _PyFlame:
             package_list = '\n'.join(package)
             PyFlameMessageWindow(
                 message=f"Python packages successfully installed:\n\n{package_list}\n\nStarting script...",
-                title='PDF to JPG: Packages Installed',
+                title=f'{SCRIPT_NAME}: Packages Installed',
                 parent=None,
                 )
 
@@ -1568,7 +1566,7 @@ class _PyFlame:
 
             To print indented text:
             ```
-            pyflame.print('This is some indented text.', indent=True)
+            pyflame.print('This is some indented text.', indent=4)
             ```
         """
 
@@ -2517,8 +2515,7 @@ class _PyFlame:
         pyflame.print('Resolving Tokens', new_line=False)
         print('----------------')
 
-
-        print('Checking for tokens in string666:', tokenized_string)
+        print('Checking for tokens in string:', tokenized_string)
 
         # Check if string has tokens
         if not re.search(r'<.*?>', tokenized_string):
@@ -3200,6 +3197,9 @@ class _PyFlame:
 
         print('Getting Export Presets:\n')
 
+        project_file_sequence_path = os.path.join('/opt/Autodesk/', f'{flame.projects.current_project.name}', 'export/presets/flame/file_sequence')
+        project_movie_export_path = os.path.join('/opt/Autodesk/', f'{flame.projects.current_project.name}', 'export/presets/flame/movie_file')
+
         # Get Shared File Sequence Export Presets
         if os.path.isdir(SHARED_FILE_SEQUENCE_PATH):
             shared_file_sequence_export_presets = [f'Shared: File Sequence: {p[:-4]}' for p in os.listdir(SHARED_FILE_SEQUENCE_PATH) if p.endswith('.xml')]
@@ -3215,18 +3215,18 @@ class _PyFlame:
             print('Shared Movie Export Presets path does not exist:', SHARED_MOVIE_EXPORT_PATH, '\n')
 
         # Get Project File Sequence Export Presets
-        if os.path.isdir(PROJECT_FILE_SEQUENCE_PATH):
-            project_file_sequence_export_presets = [f'Project: File Sequence: {p[:-4]}' for p in os.listdir(PROJECT_FILE_SEQUENCE_PATH) if p.endswith('.xml')]
+        if os.path.isdir(project_file_sequence_path):
+            project_file_sequence_export_presets = [f'Project: File Sequence: {p[:-4]}' for p in os.listdir(project_file_sequence_path) if p.endswith('.xml')]
         else:
             project_file_sequence_export_presets = []
-            print('Project File Sequence Export Presets path does not exist:', PROJECT_FILE_SEQUENCE_PATH, '\n')
+            print('Project File Sequence Export Presets path does not exist:', project_file_sequence_path, '\n')
 
         # Get Project Movie Export Presets
-        if os.path.isdir(PROJECT_MOVIE_EXPORT_PATH):
-            project_movie_export_presets = [f'Project: Movie: {p[:-4]}' for p in os.listdir(PROJECT_MOVIE_EXPORT_PATH) if p.endswith('.xml')]
+        if os.path.isdir(project_movie_export_path):
+            project_movie_export_presets = [f'Project: Movie: {p[:-4]}' for p in os.listdir(project_movie_export_path) if p.endswith('.xml')]
         else:
             project_movie_export_presets = []
-            print('Project Movie Export Presets path does not exist:', PROJECT_MOVIE_EXPORT_PATH, '\n')
+            print('Project Movie Export Presets path does not exist:', project_movie_export_path, '\n')
 
         # Combine all export presets
         export_presets = shared_file_sequence_export_presets + shared_movie_export_presets + project_file_sequence_export_presets + project_movie_export_presets
@@ -3289,6 +3289,9 @@ class _PyFlame:
         if not isinstance(export_preset_name, str):
             pyflame.raise_type_error('pyflame.convert_export_preset_name_to_path', 'export_preset_name', 'str', export_preset_name)
 
+        project_file_sequence_path = os.path.join('/opt/Autodesk/', f'{flame.projects.current_project.name}', 'export/presets/flame/file_sequence')
+        project_movie_export_path = os.path.join('/opt/Autodesk/', f'{flame.projects.current_project.name}', 'export/presets/flame/movie_file')
+
         # Convert export preset name to path
         if export_preset_name == '':
             return ''
@@ -3299,11 +3302,11 @@ class _PyFlame:
             print('Shared: Movie:', os.path.join(SHARED_MOVIE_EXPORT_PATH, f'{export_preset_name.split(": ")[2]}.xml'))
             return os.path.join(SHARED_MOVIE_EXPORT_PATH, f'{export_preset_name.split(": ")[2]}.xml')
         elif 'Project: File Sequence:' in export_preset_name:
-            print('Project: File Sequence:', os.path.join(PROJECT_FILE_SEQUENCE_PATH, f'{export_preset_name.split(": ")[2]}.xml'))
-            return os.path.join(PROJECT_FILE_SEQUENCE_PATH, f'{export_preset_name.split(": ")[2]}.xml')
+            print('Project: File Sequence:', os.path.join(project_file_sequence_path, f'{export_preset_name.split(": ")[2]}.xml'))
+            return os.path.join(project_file_sequence_path, f'{export_preset_name.split(": ")[2]}.xml')
         elif 'Project: Movie:' in export_preset_name:
-            print('Project: Movie:', os.path.join(PROJECT_MOVIE_EXPORT_PATH, f'{export_preset_name.split(": ")[2]}.xml'))
-            return os.path.join(PROJECT_MOVIE_EXPORT_PATH, f'{export_preset_name.split(":")[2]}.xml')
+            print('Project: Movie:', os.path.join(project_movie_export_path, f'{export_preset_name.split(": ")[2]}.xml'))
+            return os.path.join(project_movie_export_path, f'{export_preset_name.split(":")[2]}.xml')
         else:
             return ''
 
@@ -3421,8 +3424,12 @@ class _PyFlame:
         """
 
         # Validate Arguments
-        if not isinstance(pyobject, (flame.PyLibrary, flame.PyDesktop, flame.PyFolder)):
-            pyflame.raise_type_error('pyflame.find_by_tag', 'pyobject', 'flame.PyLibrary | flame.PyDesktop | flame.PyFolder', pyobject)
+        if isinstance(pyobject, list):
+            # Check if all items in the list are valid PyObject types
+            if not all(isinstance(item, (flame.PyLibrary, flame.PyDesktop, flame.PyFolder)) for item in pyobject):
+                pyflame.raise_type_error('pyflame.find_by_tag', 'pyobject', 'list[flame.PyLibrary | flame.PyDesktop | flame.PyFolder]', pyobject)
+        elif not isinstance(pyobject, (flame.PyLibrary, flame.PyDesktop, flame.PyFolder)):
+            pyflame.raise_type_error('pyflame.find_by_tag', 'pyobject', 'flame.PyLibrary | flame.PyDesktop | flame.PyFolder | list[flame.PyLibrary | flame.PyDesktop | flame.PyFolder]', pyobject)
         if not isinstance(target_tag, str):
             pyflame.raise_type_error('pyflame.find_by_tag', 'target_tag', 'str', target_tag)
         if not isinstance(sorted, bool):
@@ -3667,7 +3674,7 @@ class _PyFlame:
         return dest_folder
 
     @staticmethod
-    def move_to_shot_folder(shot_name: str, pyobject: flame.PyClip | flame.PyBatch | flame.PyDesktop, search_location: flame.PyLibrary | flame.PyFolder, dest_folder_path: str) -> None:
+    def move_to_shot_folder(shot_name: str, pyobject: flame.PyClip | flame.PyBatch | flame.PyDesktop, search_location: flame.PyLibrary | flame.PyFolder, dest_folder_path: str, expand_dest_folder: bool=True) -> None:
         """
         Move to Shot Folder
         ===================
@@ -3691,6 +3698,10 @@ class _PyFlame:
                 Destination folder path in Shot Folder.
                 Example 'Shot_Folder/Plates'
 
+            expand_dest_folder (bool):
+                Expands the destination folder after move is complete.
+                (Default: True)
+
         Examples
         --------
             Move to shot folder:
@@ -3713,6 +3724,8 @@ class _PyFlame:
             pyflame.raise_type_error('pyflame.move_to_shot_folder', 'search_location', 'PyLibrary or PyFolder', search_location)
         if not isinstance(dest_folder_path, str):
             pyflame.raise_type_error('pyflame.move_to_shot_folder', 'dest_folder_path', 'str', dest_folder_path)
+        if not isinstance(expand_dest_folder, bool):
+            pyflame.raise_type_error('pyflame.move_to_shot_folder', 'expand_dest_folder', 'bool', expand_dest_folder)
 
         # Get Destination Folder
         dest_folder = pyflame.get_media_panel_shot_folder(shot_name, pyobject, search_location, dest_folder_path)
@@ -3725,8 +3738,12 @@ class _PyFlame:
         # Move PyObject to Destination Folder
         flame.media_panel.move(pyobject, dest_folder)
 
+        # Expand Destination Folder
+        if expand_dest_folder:
+            dest_folder.expanded = True
+
     @staticmethod
-    def copy_to_shot_folder(shot_name: str, pyobject: flame.PyClip | flame.PyBatch | flame.PyDesktop, search_location: flame.PyLibrary | flame.PyFolder, dest_folder_path: str) -> None:
+    def copy_to_shot_folder(shot_name: str, pyobject: flame.PyClip | flame.PyBatch | flame.PyDesktop, search_location: flame.PyLibrary | flame.PyFolder, dest_folder_path: str, expand_dest_folder: bool=True) -> None:
         """
         Copy to Shot Folder
         ===================
@@ -3750,6 +3767,10 @@ class _PyFlame:
                 Destination folder path in Shot Folder.
                 Example 'Shot_Folder/Plates'
 
+            expand_dest_folder (bool):
+                Expands the destination folder after copy is complete.
+                (Default: True)
+
         Example
         -------
             Copy to shot folder:
@@ -3772,6 +3793,9 @@ class _PyFlame:
             pyflame.raise_type_error('pyflame.copy_to_shot_folder', 'search_location', 'PyLibrary or PyFolder', search_location)
         if not isinstance(dest_folder_path, str):
             pyflame.raise_type_error('pyflame.copy_to_shot_folder', 'dest_folder_path', 'str', dest_folder_path)
+        if not isinstance(expand_dest_folder, bool):
+            pyflame.raise_type_error('pyflame.copy_to_shot_folder', 'expand_dest_folder', 'bool', expand_dest_folder)
+
 
         # Get Destination Folder
         dest_folder = pyflame.get_media_panel_shot_folder(shot_name, pyobject, search_location, dest_folder_path)
@@ -3783,6 +3807,10 @@ class _PyFlame:
 
         # Copy PyObject to Destination Folder
         flame.media_panel.copy(pyobject, dest_folder)
+
+        # Expand Destination Folder
+        if expand_dest_folder:
+            dest_folder.expanded = True
 
 pyflame = _PyFlame
 
@@ -3872,7 +3900,7 @@ class PyFlameToolTip:
         tooltip_delay - set time before tooltip shows
         tooltip_duration - set time tooltip shows for
 
-    Add Tooltip Event Handler methods to widget(Reference exisitng widgets for these methods):
+    Add Tooltip Event Handler methods to widget(Reference existng widgets for these methods):
         enterEvent()
         leaveEvent()
 
@@ -5827,7 +5855,7 @@ class PyFlameEntry(QtWidgets.QLineEdit):
         Set Focus
         =========
 
-        Set the focus to the entry widget.
+        Set widget focus to the entry widget.
         """
 
         self.setFocus()
@@ -9270,11 +9298,8 @@ class PyFlameMenu(QtWidgets.QPushButton):
             ```
         """
 
-        #return self._menu_options
-
         if self.menu is not None:
             menu_options = [action.text() for action in self.menu.actions()]
-            print(menu_options)
             return menu_options
 
     @menu_options.setter
@@ -9289,7 +9314,11 @@ class PyFlameMenu(QtWidgets.QPushButton):
         if not isinstance(options, list) or not all(isinstance(item, str) for item in options):
             pyflame.raise_type_error('PyFlameMenu', 'menu_options', 'List[str]', options)
 
-        self.menu.clear()  # Clear existing actions
+        # Keep internal options in sync for refresh_menu()
+        self._menu_options = options
+
+        # Clear existing actions
+        self.menu.clear()
 
         for menu_label in options:
             action = self.menu.addAction(
@@ -9731,6 +9760,9 @@ class PyFlameMenu(QtWidgets.QPushButton):
             pyflame.raise_type_error('PyFlameMenu.update_menu', 'menu_options:items', 'str', menu)
         if connect is not None and not callable(connect):
             pyflame.raise_type_error('PyFlameMenu.update_menu', 'connect', 'Callable', connect)
+
+        # Keep internal options in sync for refresh_menu()
+        self._menu_options = menu_options
 
         # Set button text
         self.text = text
@@ -12407,6 +12439,7 @@ class PyFlameSlider(QtWidgets.QLineEdit):
     def _calculator(self):
 
         def clear():
+
             calc_entry.setText('')
 
         def button_press(key):
@@ -12531,29 +12564,33 @@ class PyFlameSlider(QtWidgets.QLineEdit):
                     }}
                 """)
 
-        def calc_null():
-
-            # Does nothing
-            pass
-
-        def close_calculator():
-
-            calc_window.close()
-
         self.clean_line = False
 
         class CalcWindow(PyFlameWindow):
             """
             Calculator Window
-            ================
-
-            Subclass of :class:`PyFlameWindow`
+            =================
 
             Adds a focus out event to close the window when the user clicks outside of the calculator window or switches focus to another window.
             """
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
+
+                self._close_check_timer = QtCore.QTimer(self)
+                self._close_check_timer.timeout.connect(self._check_close_on_focus_lost)
+                self._close_check_timer.start(100)  # check every 200 ms
+
+            def _check_close_on_focus_lost(self):
+                if not self.isActiveWindow():
+                    self._close_check_timer.stop()
+                    self.close()
+
+
+            def closeEvent(self, event):
+                self._close_check_timer.stop()
+                super().closeEvent(event)
+
 
             def focusOutEvent(self, event):
                 """
@@ -12573,21 +12610,50 @@ class PyFlameSlider(QtWidgets.QLineEdit):
 
                 self.close()
 
+            def keyPressEvent(self, event):
+                """
+                Handle keyboard input for calculator buttons
+                """
+
+                key = event.key()
+                text = event.text()
+
+                # Number keys 0-9
+                if text in '0123456789':
+                    button_press(text)
+                # Operators and decimal point
+                elif text == '+':
+                    button_press('+')
+                elif text == '-':
+                    button_press('-')
+                elif text == '*':
+                    button_press('*')
+                elif text == '/':
+                    button_press('/')
+                elif text == '.':
+                    button_press('.')
+                # Backspace to delete last character
+                elif key == QtCore.Qt.Key_Backspace:
+                    calc_entry.backspace()
+                else:
+                    # Pass unhandled keys to the parent class
+                    super().keyPressEvent(event)
+
         calc_window = CalcWindow(
             title='Calculator',
+            title_height=26,
+            title_font_size=14,
+            message_bar=False,
             grid_layout_columns=4,
             grid_layout_rows=6,
             grid_layout_column_width=40,
             return_pressed=enter,
             escape_pressed=close_calc,
-            parent=None,
+            parent=self.window(),
             )
-        calc_window.move(QtGui.QCursor.pos().x() - 110, QtGui.QCursor.pos().y() - 290)
+        calc_window.move(QtGui.QCursor.pos().x() - 110, QtGui.QCursor.pos().y() - 320)
         calc_window.setWindowFlags(calc_window.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
         calc_window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-
-        # Label
-        calc_label = PyFlameLabel('Calculator')
 
         # Entry
         calc_entry = PyFlameEntry(
@@ -12604,7 +12670,7 @@ class PyFlameSlider(QtWidgets.QLineEdit):
         # Buttons
         blank_button = PyFlameButton(
             text='',
-            connect=calc_null,
+            #connect=calc_null,
             )
         blank_button.setDisabled(True)
 
@@ -12688,12 +12754,10 @@ class PyFlameSlider(QtWidgets.QLineEdit):
         _1_button = PyFlameButton(
             text='1',
             connect=(partial(button_press, '1')),
-            #width=40,
             )
         _2_button = PyFlameButton(
             text='2',
             connect=(partial(button_press, '2')),
-            #width=40,
             )
         _3_button = PyFlameButton(
             text='3',
@@ -12711,7 +12775,7 @@ class PyFlameSlider(QtWidgets.QLineEdit):
             text='0',
             connect=(partial(button_press, '0')),
             )
-        point_button = PyFlameButton(
+        dot_button = PyFlameButton(
             text='.',
             connect=(partial(button_press, '.')),
             )
@@ -12746,7 +12810,7 @@ class PyFlameSlider(QtWidgets.QLineEdit):
         calc_window.grid_layout.addWidget(enter_button, 5, 3, 2, 1)
 
         calc_window.grid_layout.addWidget(_0_button, 6, 0, 1, 2)
-        calc_window.grid_layout.addWidget(point_button, 6, 2)
+        calc_window.grid_layout.addWidget(dot_button, 6, 2)
 
     def _value_changed(self):
 
@@ -22413,7 +22477,7 @@ class PyFlameMessageWindow:
 
     Custom QT Flame Message Window.
 
-    Messsage window to display various types of messages.
+    Message window to display various types of messages.
 
     Args
     ----
@@ -22500,7 +22564,7 @@ class PyFlameMessageWindow:
     ----------
         `message` (str):
             Get or set the message text in the window.
-            (Deafult: `""`)
+            (Default: `""`)
 
         `message_type` (MessageType):
             Get or set the type of message using the MessageType Enum.
@@ -24427,7 +24491,7 @@ class PyFlameProgressWindow:
         # Update Current Task
         self._current_task = value
 
-        # Update Progress Test
+        # Update Progress Text
         self.text_edit.text = self.task_progress_message.format(task=self.task, processing_task=value, total_tasks=self.total_tasks, progress=self.progress)
 
         # Update Progress Text
@@ -24749,16 +24813,16 @@ class PyFlameProgressWindow:
             (Default: True)
 
         task_progress_message (str | None):
-            Updateds text in window. Updates processing_task and progress values to completed values.
+            Updates text in window. Updates processing_task and progress values to completed values.
             Leave as None to update standard messages to completed values.
             (Default: None)
 
         title (str | None):
-            Update progress window title. None leaves exisiting title.
+            Update progress window title. None leaves existing title.
             (Default: None)
 
         text_append (str | None):
-            Add text to existing window text. Leaves any exisiting window text as is.
+            Add text to existing window text. Leaves any existing window text as is.
             (Default: None)
         """
 
@@ -24775,7 +24839,7 @@ class PyFlameProgressWindow:
         # Set progress bar to 100%
         self.progress_bar.setValue(self.progress_bar.maximum())
 
-        # Update Progress Test
+        # Update Progress Text
         if not task_progress_message:
             self.text_edit.text = self.task_progress_message.format(task=self.task, processing_task=self.total_tasks, total_tasks=self.total_tasks, progress=100)
         else:
