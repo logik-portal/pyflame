@@ -6,7 +6,20 @@ https://github.com/logik-portal/pyflame
 
 ## v5.2.3 [02.24.26]
 
-- Fixed: Disaapearing calculator in linux.
+### Updates/Fixes
+
+- **Widgets**
+    -`PyFlameSlider`
+        - **Fixed**
+            - Disaapearing calculator in linux.
+
+### Added
+
+- **PyFlame Library Stub File**
+    - Stub file for better auto-completion in code editors.
+      Be sure to rename this file as you would the pyflame_lib.py file.
+      Example: <script_name>/lib/pyflame_lib_<script_name>.pyi
+      Code editors should automatically import this file when the pyflame_lib.py file is imported.
 
 ## v5.2.2 [02.18.26]
 

@@ -25,7 +25,8 @@ match Flame’s UI and utility functions that streamline script development.
 script_folder/
 ├── main_script.py
 ├── lib/
-│   └── pyflame_lib_<main_script_name>.py
+│   └── pyflame_lib_<main_script_name>.py - pyflame library file
+│   └── pyflame_lib_<main_script_name>.pyi - pyflame library stub file
 │   └── README.md (This file) - Optional file, not required.
 │   └── CHANGELOG.md - Optional file, not required.
 ├── assets/
