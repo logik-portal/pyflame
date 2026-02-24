@@ -11,6 +11,8 @@ match Flame’s UI and utility functions that streamline script development.
 **Written By:** Michael Vaglienty<br>
 **License:** License: GNU General Public License v3.0 (GPL-3.0) - see LICENSE file for details<br>
 
+See whats new here: [CHANGELOG.md](CHANGELOG.md)
+
 ## Compatibility
 
 **Python:** 3.11<br>
