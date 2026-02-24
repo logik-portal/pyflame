@@ -19,10 +19,10 @@
 
 """
 PyFlame Library
-Version: 5.2.2
+Version: 5.2.3
 Written By: Michael Vaglienty
 Creation Date: 10.31.20
-Update Date: 02.18.26
+Update Date: 02.24.26
 
 License: GNU General Public License v3.0 (GPL-3.0) - see LICENSE file for details
 
@@ -12576,10 +12576,6 @@ class PyFlameSlider(QtWidgets.QLineEdit):
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
-
-                self._close_check_timer = QtCore.QTimer(self)
-                self._close_check_timer.timeout.connect(self._check_close_on_focus_lost)
-                self._close_check_timer.start(100)  # check every 200 ms
 
             def _check_close_on_focus_lost(self):
                 if not self.isActiveWindow():

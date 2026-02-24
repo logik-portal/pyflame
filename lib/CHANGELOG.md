@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 https://github.com/logik-portal/pyflame
 
+## v5.2.3 [02.24.26]
+
+- Fixed: Disaapearing calculator in linux.
+
 ## v5.2.2 [02.18.26]
 
 - Fixed: Unable to find project errors in terminal when Flame starts up.
