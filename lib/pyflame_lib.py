@@ -44,6 +44,7 @@ Folder Structure:
     ├── main_script.py
     ├── lib/
     │   └── pyflame_lib_<main_script_name>.py
+    │   └── pyflame_lib_<main_script_name>.pyi   # Optional
     ├── assets/
     │   └── fonts/
     │       ├── Montserrat-Regular.ttf
