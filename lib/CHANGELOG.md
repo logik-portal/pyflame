@@ -4,6 +4,57 @@ All notable changes to this project will be documented in this file.
 
 https://github.com/logik-portal/pyflame
 
+## v5.3.0 [03.13.26]
+
+- Lots of type hinting and argument validation improvements.
+
+### Added
+
+- **PyFlameImageWidget**
+    - Image widget to display images.
+
+- **PyFlameImageGallery**
+    - Image gallery widget to display a gallery of images.
+
+### Updates
+
+- **Widgets**
+    -`PyFlameTextEdit`
+        - **New Method**
+            - `set_focus()`
+                - Sets focus of current window to PyFlameTextEdit
+        - **New TextStyle**
+            `READ_ONLY_SELECTABLE`
+                - Text is not editable but is selectable and can be added to the clipboard (Copy/Paste).
+
+    -`PyFlameMenu`
+        - Menus with one or no menu items no longer show a dropdown menu. Text is only shown on menu button.
+
+## v5.2.4 [02.28.26]
+
+### Updates
+
+- **Widgets**
+    -`PyFlameWindow`
+        - Added argument for window margins - defaults to 15.
+
+## v5.2.3 [02.24.26]
+
+### Updates/Fixes
+
+- **Widgets**
+    -`PyFlameSlider`
+        - **Fixed**
+            - Disaapearing calculator in linux.
+
+### Added
+
+- **PyFlame Library Stub File**
+    - Stub file for better auto-completion in code editors.
+      Be sure to rename this file as you would the pyflame_lib.py file.
+      Example: <script_name>/lib/pyflame_lib_<script_name>.pyi
+      Code editors should automatically import this file when the pyflame_lib.py file is imported.
+
 ## v5.2.2 [02.18.26]
 
 - Fixed: Unable to find project errors in terminal when Flame starts up.
