@@ -1,10 +1,10 @@
 # Script Template
 
-**Script Version:** 5.0.1  
-**Flame Version:** 2025  
-**Written by:** Michael Vaglienty  
-**Creation Date:** 02.09.22  
-**Update Date:** 12.18.25  
+**Script Version:** 5.0.1
+**Flame Version:** 2025
+**Written by:** Michael Vaglienty
+**Creation Date:** 02.09.22
+**Update Date:** 12.18.25
 
 **Script Type:** Batch
 

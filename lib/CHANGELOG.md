@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 https://github.com/logik-portal/pyflame
 
+<<<<<<< HEAD
 ## v5.3.0 [03.13.26]
 
 - Lots of type hinting and argument validation improvements.
@@ -30,6 +31,8 @@ https://github.com/logik-portal/pyflame
     -`PyFlameMenu`
         - Menus with one or no menu items no longer show a dropdown menu. Text is only shown on menu button.
 
+=======
+>>>>>>> 3c93f8cad07a31896f2bd21a49f6c2e42d320d86
 ## v5.2.4 [02.28.26]
 
 ### Updates

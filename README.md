@@ -5,9 +5,15 @@ https://github.com/logik-portal/pyflame
 Python library for Autodesk Flame providing PyQt widgets styled to
 match Flame’s UI and utility functions that streamline script development.
 
+<<<<<<< HEAD
 **Version:** 5.3.0<br>
 **Creation Date:** 10.31.20<br>
 **Update Date:** 03.13.26<br>
+=======
+**Version:** 5.2.4<br>
+**Creation Date:** 10.31.20<br>
+**Update Date:** 02.28.26<br>
+>>>>>>> 3c93f8cad07a31896f2bd21a49f6c2e42d320d86
 **Written By:** Michael Vaglienty<br>
 **License:** License: GNU General Public License v3.0 (GPL-3.0) - see LICENSE file for details<br>
 

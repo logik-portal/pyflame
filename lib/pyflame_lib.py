@@ -19,10 +19,17 @@
 
 """
 PyFlame Library
+<<<<<<< HEAD
 Version: 5.3.0
 Written By: Michael Vaglienty
 Creation Date: 10.31.20
 Update Date: 03.13.26
+=======
+Version: 5.2.4
+Written By: Michael Vaglienty
+Creation Date: 10.31.20
+Update Date: 02.28.26
+>>>>>>> 3c93f8cad07a31896f2bd21a49f6c2e42d320d86
 
 License: GNU General Public License v3.0 (GPL-3.0) - see LICENSE file for details
 
@@ -24169,23 +24176,36 @@ class PyFlameWindow(QtWidgets.QDialog):
     def window_margins(self, value: int | tuple[int, int, int, int]) -> None:
         """
         Window Margins
+<<<<<<< HEAD
         ==============
+=======
+        =====================
+>>>>>>> 3c93f8cad07a31896f2bd21a49f6c2e42d320d86
 
         Set the margin in pixels around the main content area.
         """
 
         # Validate Argument and normalize to (left, top, right, bottom)
+<<<<<<< HEAD
         margins: tuple[int, int, int, int]
+=======
+>>>>>>> 3c93f8cad07a31896f2bd21a49f6c2e42d320d86
         if isinstance(value, int):
             margins = (value, value, value, value)
         elif isinstance(value, tuple) and len(value) == 4:
             if not all(isinstance(v, int) for v in value):
                 pyflame.raise_type_error('PyFlameWindow', 'window_margins', 'tuple of 4 ints (left, top, right, bottom)', value)
+<<<<<<< HEAD
                 return
             margins = value
         else:
             pyflame.raise_type_error('PyFlameWindow', 'window_margins', 'int or tuple of 4 ints (left, top, right, bottom)', value)
             return
+=======
+            margins = value
+        else:
+            pyflame.raise_type_error('PyFlameWindow', 'window_margins', 'int or tuple of 4 ints (left, top, right, bottom)', value)
+>>>>>>> 3c93f8cad07a31896f2bd21a49f6c2e42d320d86
 
         self.window_margins_value = margins
         self.main_vbox2.setContentsMargins(
