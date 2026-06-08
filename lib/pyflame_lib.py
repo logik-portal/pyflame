@@ -19,10 +19,10 @@
 
 """
 PyFlame Library
-Version: 5.3.1
+Version: 5.4.0
 Written By: Michael Vaglienty
 Creation Date: 10.31.20
-Update Date: 05.04.26
+Update Date: 06.03.26
 
 Minimum Flame 2025.1
 
@@ -14868,17 +14868,18 @@ class PyFlameSlider(QtWidgets.QLineEdit):
 
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
+                self._close_check_timer = QtCore.QTimer(self)
+                self._close_check_timer.timeout.connect(self._check_close_on_focus_lost)
+                self._close_check_timer.start(150)
 
             def _check_close_on_focus_lost(self):
                 if not self.isActiveWindow():
                     self._close_check_timer.stop()
                     self.close()
 
-
             def closeEvent(self, event):
                 self._close_check_timer.stop()
                 super().closeEvent(event)
-
 
             def focusOutEvent(self, event):
                 """
@@ -15099,6 +15100,9 @@ class PyFlameSlider(QtWidgets.QLineEdit):
 
         calc_window.grid_layout.addWidget(_0_button, 6, 0, 1, 2)
         calc_window.grid_layout.addWidget(dot_button, 6, 2)
+
+        calc_window.activateWindow()
+        calc_entry.setFocus()
 
     def _value_changed(self):
 
@@ -24324,6 +24328,730 @@ class PyFlameWindow(QtWidgets.QDialog):
 # ==============================================================================
 # [PyFlame Window Classes]
 # ==============================================================================
+
+class PyFlameOptionWindow:
+    """
+    PyFlameOptionWindow
+    ===================
+
+    Custom QT Flame Option Window.
+
+    Displays a message with up to four user-defined buttons along the bottom of the
+    window. The window blocks until the user presses a button (or closes the window),
+    then exposes the text of the pressed button.
+
+    Buttons are positional. Positions are defined using a dictionary keyed by an int
+    from 1 to 4, where each value is a dictionary describing that button. Positions
+    map directly to fixed columns along the bottom of the window, so omitting a
+    position leaves an empty gap in that slot.
+
+    Args
+    ----
+        `parent` (PyFlameWindow | None):
+            This window's parent window. Set to `None` if no parent window.
+
+        `message` (str):
+            Text displayed in the body of the window.
+            (Default: ``)
+
+        `buttons` (dict[int, dict]):
+            Dictionary defining the window's buttons. Required; at least one button must
+            be provided. Keys are button positions (1-4) and values are dictionaries
+            describing each button. Up to four buttons are supported. Omitting a
+            position leaves that slot empty.
+
+            Each button dictionary supports:
+                `text` (str):
+                    Text displayed on the button. Required.
+                `color` (Color, optional):
+                    Button color. Must be `Color.GRAY`, `Color.BLUE`, or `Color.RED`.
+                    (Default: `Color.GRAY`)
+
+            Example
+                ```
+                buttons={
+                    1: {'text': 'Overwrite', 'color': Color.RED},
+                    3: {'text': 'Skip',      'color': Color.GRAY},
+                    4: {'text': 'Cancel',    'color': Color.GRAY},
+                    }
+                ```
+            (Default: `{1: {'text': 'Ok', 'color': Color.BLUE}}`)
+
+        `cancel_button` (int):
+            Position (1-4) of the button that should be treated as a cancel button.
+            Pressing this button causes the window to evaluate as `False`. Set to `0`
+            for no cancel button.
+            (Default: `0`)
+
+        `title` (str, optional):
+            Window title. If empty, `SCRIPT_NAME` is used.
+            (Default: ``)
+
+        `title_style` (Style, optional):
+            Style of title text.
+            (Default: `Style.BACKGROUND_THIN`)
+
+        `title_align` (Align | None, optional):
+            Alignment of title text.
+            (Default: `None`)
+
+        `line_color` (Color | None, optional):
+            Color of bar on left side of window. If `None`, `Color.BLUE` is used.
+            (Default: `None`)
+
+        `message_bar` (bool):
+            Enable message bar at bottom of window.
+            (Default: `False`)
+
+        `duration` (int):
+            Time in seconds to display message in flame message area.
+            (Default: `5`)
+
+    Raises
+    ------
+        TypeError:
+            If an argument has an invalid type.
+
+        ValueError:
+            If `buttons` is empty, if a button position is not between 1 and 4, if a
+            button has no `text`, if button text is duplicated, if a button `color` is
+            invalid, or if `cancel_button` is set to a position not present in `buttons`.
+
+    Properties
+    ----------
+        `message` (str):
+            Get or set the message text in the window.
+
+        `title` (str):
+            Get or set the title of the window.
+
+        `title_style` (Style):
+            Get or set the title style of the window.
+
+        `title_align` (Align | None):
+            Get or set the title alignment of the window.
+
+        `line_color` (Color | None):
+            Get or set the line color of the window.
+
+        `duration` (int):
+            Get or set the amount of time to display the message in the Flame message area.
+
+        `selected` (str):
+            Get the text of the pressed button. Empty string if the window was closed
+            without a button press. Read-only.
+
+        `confirmed` (bool):
+            Get or set the confirmed status of the window.
+
+    Returns
+    -------
+        The text of the pressed button is available through the `selected` property and
+        through `str(window)`. The window evaluates as a bool: `True` if a button other
+        than `cancel_button` was pressed, `False` if `cancel_button` was pressed or the
+        window was closed without a selection.
+
+    Examples
+    --------
+        Show an option window with three buttons:
+        ```
+        window = PyFlameOptionWindow(
+            parent=None,
+            message='A batch group with this name already exists.',
+            buttons={
+                1: {'text': 'Overwrite', 'color': Color.RED},
+                3: {'text': 'Skip',      'color': Color.GRAY},
+                4: {'text': 'Cancel',    'color': Color.GRAY},
+                },
+            cancel_button=4,
+            )
+        ```
+
+        Get the text of the pressed button as a string:
+        ```
+        # Using the selected property
+        choice = window.selected  # e.g. 'Overwrite', 'Skip', or 'Cancel'
+
+        # Using str()
+        choice = str(window)      # e.g. 'Overwrite', 'Skip', or 'Cancel'
+        ```
+
+        Get the bool result of the window (True unless cancel_button was pressed):
+        ```
+        # Using the confirmed property
+        if window.confirmed:
+            print('User confirmed')
+
+        # Evaluating the window directly via bool()
+        if window:
+            print('User confirmed')
+        else:
+            print('User cancelled or closed the window')
+        ```
+
+        Branch on which button was pressed:
+        ```
+        if window:
+            if window.selected == 'Overwrite':
+                overwrite_batch_group()
+            elif window.selected == 'Skip':
+                skip_batch_group()
+        else:
+            # Cancel button pressed or window closed
+            pass
+        ```
+    """
+
+    def __init__(self: 'PyFlameOptionWindow',
+                 parent: PyFlameWindow | None,
+                 message: str='',
+                 buttons: dict[int, dict]={1: {'text': 'Ok', 'color': Color.BLUE}},
+                 cancel_button: int=0,
+                 title: str='',
+                 title_style: Style=Style.BACKGROUND_THIN,
+                 title_align: Align | None=None,
+                 line_color: Color | None=None,
+                 message_bar=False,
+                 duration: int=5,
+                 ) -> None:
+
+        # Validate Arguments
+        if not isinstance(parent, (type(None), PyFlameWindow)):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'parent', 'PyFlameWindow | None', parent)
+        if not isinstance(message, str):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'message', 'str', message)
+        if not isinstance(buttons, dict):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'buttons', 'dict[int, dict]', buttons)
+        if len(buttons) == 0:
+            pyflame.raise_value_error('PyFlameOptionWindow', 'buttons', 'at least one button', buttons)
+        if not isinstance(cancel_button, int) or isinstance(cancel_button, bool):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'cancel_button', 'int', cancel_button)
+        if not isinstance(title, str):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'title', 'str', title)
+        if not isinstance(title_style, Style):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'title_style', 'Style Enum', title_style)
+        if title_align is not None and not isinstance(title_align, Align):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'title_align', 'Align Enum | None', title_align)
+        if line_color is not None and not isinstance(line_color, Color):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'line_color', 'Color Enum | None', line_color)
+        if not isinstance(message_bar, bool):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'message_bar', 'bool', message_bar)
+        if not isinstance(duration, int):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'duration', 'int', duration)
+
+        # Validate button definitions
+        allowed_colors = (Color.GRAY, Color.BLUE, Color.RED)
+        seen_text: list[str] = []
+        for position, button_def in buttons.items():
+            if not isinstance(position, int) or isinstance(position, bool) or position < 1 or position > 4:
+                pyflame.raise_value_error('PyFlameOptionWindow', 'buttons', 'button position int between 1 and 4', position)
+            if not isinstance(button_def, dict):
+                pyflame.raise_type_error('PyFlameOptionWindow', 'buttons', 'dict describing each button', button_def)
+            button_text = button_def.get('text', '')
+            if not isinstance(button_text, str) or button_text == '':
+                pyflame.raise_value_error('PyFlameOptionWindow', 'buttons', "non-empty 'text' string for each button", button_text)
+            if button_text in seen_text:
+                pyflame.raise_value_error('PyFlameOptionWindow', 'buttons', 'unique button text', button_text)
+            seen_text.append(button_text)
+            button_color = button_def.get('color', Color.GRAY)
+            if button_color not in allowed_colors:
+                pyflame.raise_value_error('PyFlameOptionWindow', 'buttons', 'Color.GRAY, Color.BLUE, or Color.RED', button_color)
+
+        # Validate cancel_button references an existing button
+        if cancel_button != 0 and cancel_button not in buttons:
+            pyflame.raise_value_error('PyFlameOptionWindow', 'cancel_button', 'position present in buttons or 0', cancel_button)
+
+        self._cancel_button = cancel_button
+        self.selected = ''
+        self.confirmed = False
+
+        #-------------------------------------
+        # [Build Option Window]
+        #-------------------------------------
+
+        self.option_window = PyFlameWindow(
+            grid_layout_columns=4,
+            grid_layout_rows=6,
+            grid_layout_column_width=110,
+            message_bar=message_bar,
+            parent=parent,
+            )
+
+        self.option_window_text_edit = PyFlameTextEdit(
+            text_style=TextStyle.UNSELECTABLE,
+            )
+
+        # Build buttons from the definitions, keyed by position
+        self.buttons: dict[int, PyFlameButton] = {}
+        for position, button_def in buttons.items():
+            button_text = button_def['text']
+            button_color = button_def.get('color', Color.GRAY)
+            self.buttons[position] = PyFlameButton(
+                text=button_text,
+                connect=partial(self._select, position, button_text),
+                color=button_color,
+                width=110,
+                )
+
+        #-------------------------------------
+        # [Window Layout]
+        #-------------------------------------
+
+        self.option_window.grid_layout.addWidget(self.option_window_text_edit, 0, 0, 6, 4)
+
+        # Add each button to its fixed column so omitted positions leave a gap
+        for position, button in self.buttons.items():
+            self.option_window.grid_layout.addWidget(button, 7, position - 1)
+
+        #-------------------------------------
+        # [Set Window Properties]
+        #-------------------------------------
+
+        self.message = message
+        self.title = title
+        self.title_style = title_style
+        self.title_align = title_align
+        self.line_color = line_color
+        self.duration = duration
+
+        # Print message to terminal and Flame's console area
+        self._message_print(self.message, self.title, self.duration)
+
+        # Show option window and wait for user to select a button
+        self.option_window.exec_()
+
+    def __bool__(self):
+        return self.confirmed
+
+    def __str__(self):
+        return self.selected
+
+    #-------------------------------------
+    # [Properties]
+    #-------------------------------------
+
+    @property
+    def message(self) -> str:
+        """
+        Message
+        =======
+
+        Get or set message text.
+
+        Returns
+        -------
+            `str`:
+                Message text.
+
+        Set
+        ---
+            `value` (str):
+                Message text.
+
+        Raises
+        ------
+            TypeError:
+                If the provided `value` is not a str.
+
+        Examples
+        --------
+            ```
+            # Get message text
+            print(option_window.message)
+
+            # Set message text
+            option_window.message = 'Option Window'
+            ```
+        """
+
+        return self.option_window_text_edit.text
+
+    @message.setter
+    def message(self, value: str) -> None:
+        """
+        Message
+        =======
+
+        Set the message text.
+        """
+
+        # Validate Argument
+        if not isinstance(value, str):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'message', 'str', value)
+
+        self.option_window_text_edit.text = value
+
+    @property
+    def title(self) -> str:
+        """
+        Title
+        =====
+
+        Get or set Option Window title.
+
+        Returns
+        -------
+            `str`:
+                Option Window title.
+
+        Set
+        ---
+            `value` (str):
+                Option Window title.
+
+        Raises
+        ------
+            TypeError:
+                If the provided `value` is not a str.
+
+        Examples
+        --------
+            ```
+            # Get title text
+            print(option_window.title)
+
+            # Set title
+            option_window.title = 'Option Window'
+            ```
+        """
+
+        return self.option_window.title
+
+    @title.setter
+    def title(self, value: str) -> None:
+        """
+        Title
+        =====
+
+        Set the option window title.
+        """
+
+        # Validate Argument
+        if not isinstance(value, str):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'title', 'str', value)
+
+        # Set default title if empty
+        if value == '':
+            value = SCRIPT_NAME
+
+        self.option_window.title = value
+
+    @property
+    def title_style(self) -> Style:
+        """
+        Title Style
+        ===========
+
+        Get or set the option window title style.
+
+        Returns
+        -------
+            `Style`:
+                Option window title style.
+
+        Set
+        ---
+            `value` (Style):
+                Option window title style.
+
+        Raises
+        ------
+            TypeError:
+                If the provided `value` is not a Style.
+
+        Examples
+        --------
+            ```
+            # Get title style
+            print(option_window.title_style)
+
+            # Set title style
+            option_window.title_style = Style.UNDERLINE
+            ```
+        """
+
+        return self.option_window.title_style
+
+    @title_style.setter
+    def title_style(self, value: Style) -> None:
+        """
+        Title Style
+        ===========
+
+        Set the option window title style.
+        """
+
+        # Validate Argument
+        if not isinstance(value, Style):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'title_style', 'Style Enum', value)
+
+        self.option_window.title_style = value
+
+    @property
+    def title_align(self) -> Align | None:
+        """
+        Title Align
+        ===========
+
+        Get or set the option window title alignment.
+
+        Returns
+        -------
+            `Align`:
+                Option window title alignment.
+
+        Set
+        ---
+            `value` (Align | None):
+                Option window title alignment.
+
+        Raises
+        ------
+            TypeError:
+                If the provided `value` is not Align | None.
+
+        Examples
+        --------
+            ```
+            # Get title alignment
+            print(option_window.title_align)
+
+            # Set title alignment
+            option_window.title_align = Align.CENTER
+            ```
+        """
+
+        return self.option_window.title_align
+
+    @title_align.setter
+    def title_align(self, value: Align | None) -> None:
+        """
+        Title Align
+        ===========
+
+        Set the option window title alignment.
+        """
+
+        # Validate Argument
+        if value is not None and not isinstance(value, Align):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'title_align', 'Align Enum | None', value)
+
+        if value is not None:
+            self.option_window.title_align = value
+
+    @property
+    def line_color(self) -> Color | None:
+        """
+        Line Color
+        ==========
+
+        Get or set the option window line color as Color Enum.
+
+        If None is passed, `Color.BLUE` will be applied.
+
+        Returns
+        -------
+            `Color | None`:
+                Option window line color.
+
+        Set
+        ---
+            `value` (Color | None):
+                Option window line color.
+
+        Raises
+        ------
+            TypeError:
+                If the provided `value` is not a Color | None.
+
+        Examples
+        --------
+            ```
+            # Get window line color
+            print(option_window.line_color)
+
+            # Set window line color
+            option_window.line_color = Color.BLUE
+            ```
+        """
+
+        return self.option_window.line_color
+
+    @line_color.setter
+    def line_color(self, value: Color | None) -> None:
+        """
+        Line Color
+        ==========
+
+        Set the option window line color.
+        """
+
+        # Validate Argument
+        if value is not None and not isinstance(value, Color):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'line_color', 'Color Enum | None', value)
+
+        # Default to blue when no color is provided
+        self.option_window.line_color = value if value is not None else Color.BLUE
+
+    @property
+    def duration(self) -> int:
+        """
+        Duration
+        ========
+
+        Get or set the duration in seconds the message will show in the Flame Message Area.
+
+        Returns
+        -------
+            `int`:
+                Duration of message in seconds.
+
+        Set
+        ---
+            `value` (int):
+                Duration of message in seconds.
+
+        Raises
+        ------
+            TypeError:
+                If the provided `value` is not an `int`.
+
+        Examples
+        --------
+            ```
+            # Get message duration
+            print(option_window.duration)
+
+            # Set message duration
+            option_window.duration = 5
+            ```
+        """
+
+        return self._duration
+
+    @duration.setter
+    def duration(self, value: int) -> None:
+        """
+        Duration
+        ========
+
+        Set the duration of the message in the Flame Message Area.
+        """
+
+        # Validate Argument
+        if not isinstance(value, int):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'duration', 'int', value)
+
+        self._duration = value
+
+    @property
+    def selected(self) -> str:
+        """
+        Selected
+        ========
+
+        Get the text of the pressed button.
+
+        Returns
+        -------
+            `str`:
+                Text of the pressed button. Empty string if no button was pressed.
+        """
+
+        return self._selected
+
+    @selected.setter
+    def selected(self, value: str) -> None:
+        """
+        Selected
+        ========
+
+        Set the text of the pressed button.
+        """
+
+        # Validate Argument
+        if not isinstance(value, str):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'selected', 'str', value)
+
+        self._selected = value
+
+    @property
+    def confirmed(self) -> bool:
+        """
+        Confirmed
+        =========
+
+        Get or set the confirmed status of the window.
+        """
+
+        return self._confirmed
+
+    @confirmed.setter
+    def confirmed(self, value: bool) -> None:
+        """
+        Set the confirmed status of the window.
+        """
+
+        # Validate Argument
+        if not isinstance(value, bool):
+            pyflame.raise_type_error('PyFlameOptionWindow', 'confirmed', 'bool', value)
+
+        self._confirmed = value
+
+    #-------------------------------------
+    # [Methods]
+    #-------------------------------------
+
+    def _message_print(self, message: str, title: str, duration: int):
+        """
+        Print
+        =====
+
+        Print message to the terminal/shell and Flame's console area.
+        """
+
+        print(
+            f'{TextColor.BLUE.value}' + # Set text color
+            '=' * 80 + '\n' +
+            f'Info: {TextColor.WHITE.value}{SCRIPT_NAME.upper()}{TextColor.BLUE.value}' + '\n' +
+            '=' * 80 + '\n\n' +
+            f'{TextColor.WHITE.value}' + # Set text color
+            f'{message}\n\n' +
+            f'{TextColor.BLUE.value}' + # Set text color
+            '-' * 80 + '\n'
+            f'{TextColor.RESET.value}'  # Reset text color
+            )
+
+        # Print message to the Flame message area
+        flame.messages.show_in_console(f'{title.upper()}: {message}', 'info', duration)
+
+    def _select(self, position: int, button_text: str) -> None:
+        """
+        Select
+        ======
+
+        Store the pressed button's text, set the confirmed status, and close the window.
+        """
+
+        self.selected = button_text
+        self.confirmed = position != self._cancel_button
+
+        self.option_window.close()
+
+        if self.confirmed:
+            pyflame.print(f'Option Selected: {button_text}', text_color=TextColor.GREEN)
+        else:
+            pyflame.print('Operation Cancelled', text_color=TextColor.RED)
+
+    def close(self) -> None:
+        """
+        Close
+        =====
+
+        Close the option window.
+        """
+
+        self.option_window.close()
 
 class PyFlameInputDialog:
     """
