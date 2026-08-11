@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 https://logik-portal.com/pyflame
 
+## v5.5.1 [08.11.26]
+
+### Updates
+
+- **Widgets**
+    - `PyFlameMenu`
+        - Updated stylesheet - menu bar now changes to grey when disabled.
+
+- **PyFlameConfig**
+    - Now neatly prints lists and dictionaries to the console.
+
+
 ## v5.5.0 [07.22.26]
 
 ### Updates

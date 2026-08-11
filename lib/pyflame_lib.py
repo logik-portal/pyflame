@@ -19,10 +19,10 @@
 
 """
 PyFlame Library
-Version: 5.5.0
+Version: 5.5.1
 Written By: Michael Vaglienty
 Creation Date: 10.31.20
-Update Date: 07.22.26
+Update Date: 08.11.26
 
 Minimum Flame 2025.1
 
@@ -4295,6 +4295,39 @@ class PyFlameConfig:
 
     def print_config(self, action: str) -> None:
 
+        def format_value(value: Any, indent: int) -> List[str]:
+            """
+            Format Value
+            ============
+
+            Render nested dictionaries and lists as indented lines.
+            """
+
+            prefix = ' ' * indent
+
+            if isinstance(value, dict) and value:
+                pad = max(len(str(k)) for k in value) + 1
+                lines = []
+                for key, val in value.items():
+                    if isinstance(val, (dict, list)) and val:
+                        lines.append(f'{prefix}{key}:')
+                        lines.extend(format_value(val, indent + 4))
+                    else:
+                        lines.append(f'{prefix}{str(key):<{pad}}: {val}')
+                return lines
+
+            if isinstance(value, list) and value:
+                lines = []
+                for item in value:
+                    if isinstance(item, (dict, list)) and item:
+                        lines.append(f'{prefix}-')
+                        lines.extend(format_value(item, indent + 4))
+                    else:
+                        lines.append(f'{prefix}- {item}')
+                return lines
+
+            return [f'{prefix}{value}']
+
         pad = max(len(k) for k in self.config_values) + 1
 
         label = f'--[ {SCRIPT_NAME}: {action} Config ]'
@@ -4303,7 +4336,12 @@ class PyFlameConfig:
 
         print(f'{top_rule}')
         for key, val in self.config_values.items():
-            print(f'{key:<{pad}}: {val}')
+            if isinstance(val, (dict, list)) and val:
+                print(f'{key}:')
+                for line in format_value(val, 4):
+                    print(line)
+            else:
+                print(f'{key:<{pad}}: {val}')
         print(bottom_rule)
 
     def load_config(self) -> None:
@@ -12425,7 +12463,7 @@ class PyFlameMenu(QtWidgets.QPushButton):
                 }}
             QPushButton:disabled{{
                 color: {Color.TEXT_DISABLED.value};
-                background-color: rgb(45, 55, 68);
+                background-color: {Color.DISABLED_GRAY.value};
                 border: none;
                 }}
             QPushButton:hover{{
