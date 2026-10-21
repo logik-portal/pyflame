@@ -1,6 +1,6 @@
 # PyFlame Library
 
-https://logik-portal.com/#pyflame
+https://logik-portal.com/pyflame
 
 Python library for Autodesk Flame providing PyQt widgets styled to
 match Flame’s UI and utility functions that streamline script development.
